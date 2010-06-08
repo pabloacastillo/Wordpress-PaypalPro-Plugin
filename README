@@ -1,0 +1,23 @@
+=== Wordpress PaypalPro Plugin ===
+Contributors: Pablo Castillo
+Tags: carrito, paypal, paypal pro, ecommerce
+Requires at least: 2.0
+Tested up to: 2.9
+
+WebShop to make direct payments from your wordpress to your PaypalPro Account without leaving your site.
+
+== Description ==
+
+WebShop to make direct payments from your wordpress to your PaypalPro Account without leaving your site.
+
+== Installation ==
+
+Upload, activate, configure. Done!
+
+== Changelog ==
+
+= 0.5 =
+
+* Add items
+* Shipping options
+* Taxes options
