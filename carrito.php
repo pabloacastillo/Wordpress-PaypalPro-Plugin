@@ -43,6 +43,9 @@ function carrito_conf() {
 		
 		delete_option('carrito_paypal_password');
 		add_option('carrito_paypal_password', $_POST['password_paypal']);
+		
+		delete_option('carrito_paypal_sandbox');
+		add_option('carrito_paypal_sandbox', $_POST['sandbox_paypal']);
 	} 
 	
 	if ( isset($_POST['carrito_shipping_new']) ) {
@@ -82,13 +85,14 @@ function carrito_conf() {
 	<h2><?php _e('Paypal API Information'); ?></h2>
 	<div class="narrow">
 		<form action="" method="post" style="">
-			Paypal Username: <input name="username_paypal" value="<?php echo get_option('carrito_paypal_username');?>">
+			Paypal Username: <input type="text" name="username_paypal" value="<?php echo get_option('carrito_paypal_username');?>">
 			<br>
-			Paypal Password: <input name="password_paypal" value="<?php echo get_option('carrito_paypal_password');?>">
+			Paypal Password: <input type="text" name="password_paypal" value="<?php echo get_option('carrito_paypal_password');?>">
 			<br>
-			Paypal Signature: <input name="signature_paypal" value="<?php echo get_option('carrito_paypal_signature');?>">
+			Paypal Signature: <input type="text" name="signature_paypal" value="<?php echo get_option('carrito_paypal_signature');?>">
 			<br>
-			<input type="submit" name="carrito_config">
+			Sandbox Mode: <input type="checkbox" name="sandbox_paypal" <?php if(get_option('carrito_paypal_sandbox')=='active'){ echo 'checked'; }?> value="active">
+			<input type="submit" name="carrito_config" value="Save Configuration">
 		</form>
 
 	</div>
@@ -100,7 +104,7 @@ function carrito_conf() {
 			<br>
 			Shipping Price: <input name="carrito_shipping_price" value="">
 			<br>
-			<input type="submit" name="carrito_shipping_new">
+			<input type="submit" name="carrito_shipping_new" value="Add New Shipping Option">
 		</form>
 
 		<form action="" method="post" style="padding:25px 0px 0px 25px">
@@ -117,7 +121,7 @@ function carrito_conf() {
 			<?php
 		}
 		?>
-		<?php if(count($sopt)>0) { ?><input type="submit" name="carrito_shippings"> <?php } ?>
+		<?php if(count($sopt)>1) { ?><input type="submit" name="carrito_shippings" value="Update Shipping Options"> <?php } ?>
 		</form>
 	</div>
 	
@@ -129,7 +133,7 @@ function carrito_conf() {
 			<br>
 			Discount: <input name="carrito_discount_price" value="">(ex: 10% or 15$)
 			<br>
-			<input type="submit" name="carrito_discount_new">
+			<input type="submit" name="carrito_discount_new" value="Add New Coupon Code">
 		</form>
 
 		<form action="" method="post" style="padding:25px 0px 0px 25px">
@@ -146,7 +150,7 @@ function carrito_conf() {
 			<?php
 		}
 		?>
-		<?php if(count($copt)>0) { ?><input type="submit" name="carrito_discounts"><?php } ?>
+		<?php if(count($copt)>1) { ?><input type="submit" name="carrito_discounts" values="Update Coupon Codes"><?php } ?>
 		</form>
 	</div>
 </div>
@@ -159,7 +163,9 @@ function carrito($string){
 	if(strstr($_SERVER['REQUEST_URI'],'webshop')){
 		include_once 'paypal.nvp.class.php';
 		
-		$ppConfig  = array('Sandbox' => true, 'APIUsername'=>get_option('carrito_paypal_username'),'APIPassword'=>get_option('carrito_paypal_password'),'APISignature'=>get_option('carrito_paypal_signature'));
+		$sandbox=false;
+		if(get_option('carrito_paypal_sandbox')=='active') { $sandbox=true; }
+		$ppConfig  = array('Sandbox' => $sandbox, 'APIUsername'=>get_option('carrito_paypal_username'),'APIPassword'=>get_option('carrito_paypal_password'),'APISignature'=>get_option('carrito_paypal_signature'));
 		$pp = new PayPal($ppConfig);
 	
 		if(count($_SESSION['cart'])>0){
@@ -183,4 +189,50 @@ add_filter('the_content','carrito');
 function carrito_stats(){
 	echo 'Stats';
 }
+
+
+/*
+function carrito_editor_button() {
+// Only add the javascript to post.php, post-new.php, page-new.php, or
+// bookmarklet.php pages
+	if (strpos($_SERVER['REQUEST_URI'], 'post.php') ||
+		strpos($_SERVER['REQUEST_URI'], 'post-new.php') ||
+		strpos($_SERVER['REQUEST_URI'], 'page-new.php') ||
+		strpos($_SERVER['REQUEST_URI'], 'bookmarklet.php')
+	) {
+	    $mce_buttons = apply_filters('mce_buttons', array('separator','PayPalPro'));
+		// Print out the HTML/Javascript to add the button
+		?>
+		<script type="text/javascript">
+		//<![CDATA[
+			var carrito_toolbar = document.getElementById("ed_toolbar");
+			
+			function carrito_button(querystr) {
+				var precio=prompt("Enter the price for your product:");
+			  	myField = document.getElementById('content');
+			  	edInsertContent(myField, '[paypalpro_product_price='+precio+']');
+				return false;
+			}
+			
+			
+			
+			if (carrito_toolbar) {
+				var theButton = document.createElement('input');
+				theButton.type = 'button';
+				theButton.value = 'PayPalPro';
+				theButton.onclick = carrito_button;
+				theButton.className = 'ed_button';
+				theButton.title = 'PayPalPro!';
+				theButton.id = 'ed_Carrito';
+				carrito_toolbar.appendChild(theButton);
+
+				edButtons[edButtons.length]=new edButton()
+			}
+		//]]>
+		</script>
+		<?php
+	}
+}
+
+add_filter('admin_footer', 'carrito_editor_button');*/
 ?>
